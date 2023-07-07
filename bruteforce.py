@@ -1,6 +1,8 @@
 import csv
 import time
+
 start_time = time.time()
+MAX_BUDGET = 500
 
 
 def get_actions(fichier_csv):
@@ -16,7 +18,7 @@ def get_actions(fichier_csv):
         csv_reader = csv.reader(dataset)
         for count, row in enumerate(csv_reader):
             if count >= 1:
-                ratio_value = int(row[1]) * (int(row[2])/100)
+                ratio_value = int(row[1]) * (int(row[2]) / 100)
                 new_action = [row[0], int(row[1]), round(ratio_value, 2)]
                 actions.append(new_action)
     return actions
@@ -39,13 +41,13 @@ def create_set(number_of_actions):
     for i in range(1, number_of_actions + 1):
         help_number = 0
         for set_in_progress in list_of_set:
-            if help_number < ((2 ** number_of_actions)/(2 ** i)):
+            if help_number < ((2 ** number_of_actions) / (2 ** i)):
                 binary_value = 0
             else:
                 binary_value = 1
             set_in_progress.append(binary_value)
             help_number += 1
-            if help_number == (2 ** number_of_actions)/(2 ** (i-1)):
+            if help_number == (2 ** number_of_actions) / (2 ** (i - 1)):
                 help_number = 0
     return list_of_set
 
@@ -62,8 +64,8 @@ def get_cost_and_value(actions, testing_set):
     cost = 0
     value = 0
     for index, presence in enumerate(testing_set):
-        cost += presence*actions[index][1]
-        value += presence*actions[index][2]
+        cost += presence * actions[index][1]
+        value += presence * actions[index][2]
     cost_and_value_of_set = [testing_set, cost, round(value, 2)]
     return cost_and_value_of_set
 
@@ -84,7 +86,7 @@ def get_set_of_max_value(actions, all_set):
     set_of_max_value = [[], 0, 0]
     for testing_set in all_set:
         cost_and_value_of_set = get_cost_and_value(actions, testing_set)
-        if (cost_and_value_of_set[1] <= 500) and (cost_and_value_of_set[2] > set_of_max_value[2]):
+        if (cost_and_value_of_set[1] <= MAX_BUDGET) and (cost_and_value_of_set[2] > set_of_max_value[2]):
             set_of_max_value = cost_and_value_of_set
     return set_of_max_value
 
@@ -108,6 +110,8 @@ def get_best_invest(actions, all_set):
 
 def main():
     actions = get_actions('bruteforce_dataset.csv')
+    # create_set() est une fonction très gourmande en temps de calcul. Il est donc préférable de ne pas utiliser
+    # un nombre d'actions supérieur à 20.
     all_set = create_set(20)
     get_best_invest(actions, all_set)
     print("--- %s seconds ---" % (time.time() - start_time))
